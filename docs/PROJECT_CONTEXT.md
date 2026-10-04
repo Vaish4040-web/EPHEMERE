@@ -26,7 +26,7 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 | D3 | The **delegate** is the middleware's access service, never the organization. The organization never receives cfrags or the DEK. |
 | D4 | The **proxy** (stores kfrags, produces cfrags) and the **access service** (decrypts in RAM) are **separate FastAPI apps on separate ports**, even on one machine, so they can be split later. |
 | D5 | Kfrags are generated **in the browser** (owner's secret key never leaves it). MVP: threshold 1-of-1. Later: 2-of-3 if time allows. |
-| D6 | The proxy refuses to produce a cfrag if the grant is revoked or expired, and revocation deletes the kfrags. Optional "strong revoke": owner re-keys the file (new DEK, new CID). |
+| D6 | The proxy refuses to produce a cfrag if the grant is revoked or expired, and revocation deletes the kfrags and blocklists them so they cannot be re-registered. Optional "strong revoke": owner re-keys the file (new DEK, new CID). |
 | D7 | ZK: Circom 2.1.9 + SnarkJS Groth16. Verifier checks the proof **and** that public signals equal its own issuer key, cutoff day and nonce. Dev-only trusted setup, simulated issuer. |
 | D8 | Audit: hash-chained events, Merkle root checkpoints, inclusion proofs. Events contain IDs and decisions only. |
 
@@ -35,9 +35,9 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 |---|---|
 | Frontend | Next.js (Node 20+ LTS), WebCrypto for AES-GCM |
 | ZK | Circom 2.1.9, snarkjs 0.7.6, circomlib 2.0.5, circomlibjs 0.1.7 |
-| PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0** so serialized capsules/kfrags/cfrags interoperate. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
+| PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0**; interop was tested and works (see `spikes/pre`). License is GPL-3.0, mention it in the report. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
 | Storage | IPFS Kubo (local node) |
-| Backend | Python 3.11+, FastAPI |
+| Backend | **Python 3.11 exactly**, FastAPI. umbral-pre has no ready-made installer for Python 3.12+, so use 3.11 for the whole team. |
 | Audit | Python module `audit/` |
 
 ## 5. Ownership
@@ -71,7 +71,7 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 
 ## 7. Status
 - [x] ZK spike: age proof circuit + attack tests (`circuits/`)
-- [ ] PRE spike: encrypt, delegate, re-encrypt, revoke; **browser (JS 0.10.0) ↔ server (Python 0.10.0) interop test**
+- [x] PRE spike: encrypt, delegate, re-encrypt, revoke, expiry, 2-of-3, re-key; JS ↔ Python interop passes (`spikes/pre`). **Still to do:** run the JS side inside a real browser (Next.js)
 - [ ] Merkle log spike: root, inclusion proof, tamper test
 - [ ] AES-GCM + IPFS spike: encrypt in browser, store, fetch by CID, decrypt
 - [ ] Interface contract agreed (`docs/interface-contract.md`)

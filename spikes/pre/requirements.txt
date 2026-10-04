@@ -1,0 +1,2 @@
+cryptography==50.0.2
+umbral-pre==0.10.0

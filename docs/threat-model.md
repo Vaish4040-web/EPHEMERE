@@ -23,8 +23,9 @@
 | T1 after revocation | Proxy denies cfrags; kfrags deleted; org never holds keys (D3) | Org retries after revoke → `GRANT_REVOKED` |
 | T1 after expiry | Expiry enforced by proxy | Org retries after `expiresAt` → denied |
 | T2 | AES-GCM-256 before upload; IPFS is not the privacy mechanism | Fetch CID directly → ciphertext only |
-| T3 | No plaintext at rest; only metadata and wrapped keys stored | Grep logs, temp dirs, DB for plaintext markers after a run |
-| T4 | Threshold kfrags (stretch goal); eviction receipts as evidence | 2-of-3 test: one node alone cannot decrypt |
+| T3 | No plaintext at rest; only metadata and wrapped keys stored | Run the flow with a known marker string inside the test file, then search logs, temp folders, DB dump and crash output. **Pass = the marker is found nowhere.** |
+| T4 | Threshold kfrags (stretch goal); eviction receipts as evidence. **MVP uses 1-of-1, so one compromised proxy node is a full break. Say this openly.** | 2-of-3 test: one node alone cannot decrypt (done in `spikes/pre`) |
+| T4b Replayed kfrag | Proxy keeps a blocklist of revoked kfrags and refuses revoked grant ids | Re-register a revoked kfrag (same or new grant id) → refused (done in `spikes/pre`) |
 | T5 | Issuer signature verified inside the circuit | Forged and edited credential cannot produce a proof (done in `circuits/`) |
 | T6 | Hash-chained Merkle log with inclusion proofs | Altering one stored event fails verification |
 | T7 | Verifier-chosen nonce bound into the proof; signals checked | Old proof against a new nonce is rejected (done in `circuits/`) |
