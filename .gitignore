@@ -1,0 +1,23 @@
+# secrets and local key material (never commit)
+.env
+.env.*
+*.pem
+*.key
+keys/
+*.zkey
+*.ptau
+
+# dependencies and build output
+node_modules/
+build/
+dist/
+.next/
+__pycache__/
+*.pyc
+.venv/
+
+# local tooling
+circom
+circom.exe
+.ipfs/
+.DS_Store
