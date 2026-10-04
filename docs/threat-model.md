@@ -27,13 +27,13 @@
 | T4 | Threshold kfrags (stretch goal); eviction receipts as evidence. **MVP uses 1-of-1, so one compromised proxy node is a full break. Say this openly.** | 2-of-3 test: one node alone cannot decrypt (done in `spikes/pre`) |
 | T4b Replayed kfrag | Proxy keeps a blocklist of revoked kfrags and refuses revoked grant ids | Re-register a revoked kfrag (same or new grant id) → refused (done in `spikes/pre`) |
 | T5 | Issuer signature verified inside the circuit | Forged and edited credential cannot produce a proof (done in `circuits/`) |
-| T6 | Hash-chained Merkle log with inclusion proofs | Altering one stored event fails verification |
+| T6 | Hash-chained Merkle log, inclusion + consistency proofs, **signed checkpoints kept by users or auditors** | Edit, delete and swap are detected (done in `audit/`). A fully rebuilt log fails the consistency check against an old checkpoint (done in `audit/`). |
 | T7 | Verifier-chosen nonce bound into the proof; signals checked | Old proof against a new nonce is rejected (done in `circuits/`) |
 
 ## Out of scope / residual risks (say these out loud in the report)
 - Data an organization legitimately saw in an authorized session cannot be recalled.
 - A compromised running access service can read plaintext it is currently processing (transient RAM reduces persistence, it does not make memory invulnerable). Future work: confidential computing (TEE with attestation).
-- A single-operator Merkle log proves tampering only if the root is published or witnessed somewhere the operator does not control. For the demo, show root verification and a deliberately altered event.
+- A single-operator log proves tampering only if someone besides the operator holds an older checkpoint. Without that, cutting off the last events or rebuilding the whole log is undetectable (both are shown in `audit/test_audit.py`). Decide who stores checkpoints for the demo (for example the user's browser).
 - Dev-only trusted setup for Groth16, and a simulated credential issuer.
 - Proxy and access service may share a machine in the demo (separate processes), which weakens T4 compared with independent nodes.
 - DPDP: the system technically supports selected principles (minimization, purpose/duration limits, erasure/revocation workflow). It is not a legal compliance certificate.
