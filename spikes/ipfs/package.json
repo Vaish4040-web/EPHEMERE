@@ -1,0 +1,14 @@
+{
+  "name": "ephemere-ipfs-spike",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test_ipfs.mjs"
+  },
+  "dependencies": {
+    "blockstore-core": "7.0.1",
+    "ipfs-unixfs-importer": "17.1.1",
+    "kubo": "0.43.1"
+  }
+}
