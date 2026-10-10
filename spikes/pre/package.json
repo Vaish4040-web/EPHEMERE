@@ -1,0 +1,9 @@
+{
+  "name": "ephemere-pre-spike",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@nucypher/umbral-pre": "0.10.0"
+  }
+}

@@ -1,4 +1,4 @@
-# EPHEMERE: Interface Contract (DRAFT v0.1)
+# EPHEMERE: Interface Contract (DRAFT v0.2)
 
 Status: **proposal for the team to review and freeze in week 1.** Change it only via PR, and update the version number.
 
@@ -72,7 +72,7 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 |---|---|
 | `GET /user/requests` | Pending requests for this user, including the Challenge |
 | `POST /user/requests/{id}/proof` | Submit ProofBundle (when an attribute proof is required) |
-| `POST /user/requests/{id}/approve` | Approve; body carries kfrags: `{kfrags: ["<b64>"], threshold: {m,n}}` |
+| `POST /user/requests/{id}/approve` | Approve; body carries kfrags: `{kfrags: ["<b64>"], threshold: {m,n}}`. **The middleware checks the user's session, then forwards the kfrags to `POST /proxy/policies`. The browser never calls the proxy directly.** |
 | `POST /user/requests/{id}/deny` | Deny |
 | `POST /user/grants/{grantId}/revoke` | Revoke: proxy deletes kfrags, status → `revoked` |
 | `GET /user/audit` | The user's audit history with Merkle inclusion proofs |
@@ -80,7 +80,7 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 **Internal (separate FastAPI apps, not exposed to browsers)**
 | Method + path | Purpose |
 |---|---|
-| `POST /proxy/policies` | Access service/middleware stores kfrags + `expiresAt` for a grant |
+| `POST /proxy/policies` | Middleware stores kfrags + `expiresAt` for a grant. The proxy verifies each kfrag's owner signature, **refuses a revoked grant id, and refuses any kfrag that was revoked before** (tested in `spikes/pre`). |
 | `POST /proxy/reencrypt` | `{grantId, capsule}` → `{cfrags}` or `403` if revoked/expired |
 | `DELETE /proxy/policies/{grantId}` | Delete kfrags (revocation) |
 | `POST /audit/events` | Append event → `{seq, leafHash}` |
@@ -98,4 +98,4 @@ Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `GRANT_REVOKED`, `GRANT_EXPIRED`, `PROOF_
 2. Where are wrapped DEKs and metadata stored for the MVP: SQLite or Postgres? (C + D)
 3. Does the browser upload to IPFS directly, or through the backend? (B + D)
 4. Authentication for users and orgs: simple email+password with JWT for the MVP? (D + C)
-5. Does the owner sign the kfrags in a way the proxy can check the grant was authorized by the owner? (B)
+5. **Partly answered:** kfrags are already signed by the owner's signing key and the proxy verifies them. Still open: how the middleware proves to the proxy that the upload came from a logged-in owner session (for example an internal API key plus the user's session id). (B + C)
