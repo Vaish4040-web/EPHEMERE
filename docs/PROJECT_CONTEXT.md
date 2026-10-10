@@ -36,7 +36,7 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 | Frontend | Next.js (Node 20+ LTS), WebCrypto for AES-GCM |
 | ZK | Circom 2.1.9, snarkjs 0.7.6, circomlib 2.0.5, circomlibjs 0.1.7 |
 | PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0**; interop was tested and works (see `spikes/pre`). License is GPL-3.0, mention it in the report. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
-| Storage | IPFS Kubo (local node) |
+| Storage | IPFS Kubo 0.43.1 (local node, `ipfs daemon --offline` for the demo). The npm package `kubo` provides the binary. |
 | Backend | **Python 3.11 exactly**, FastAPI. umbral-pre has no ready-made installer for Python 3.12+, so use 3.11 for the whole team. |
 | Audit | Python module `audit/` (standard `hashlib` + `cryptography` for Ed25519 checkpoint signatures) |
 
@@ -73,6 +73,6 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 - [x] ZK spike: age proof circuit + attack tests (`circuits/`)
 - [x] PRE spike: encrypt, delegate, re-encrypt, revoke, expiry, 2-of-3, re-key; JS ↔ Python interop passes (`spikes/pre`). **Still to do:** run the JS side inside a real browser (Next.js)
 - [x] Merkle log spike: hash chain, Merkle root, inclusion + consistency proofs, signed checkpoints, tamper attacks (`audit/`)
-- [ ] AES-GCM + IPFS spike: encrypt in browser, store, fetch by CID, decrypt
+- [x] AES-GCM + IPFS spike: encrypt, store by CID, fetch, verify CID, decrypt, unpin + GC (`spikes/ipfs`, tested in Node with real Kubo 0.43.1). **Still to do:** run in a real browser page
 - [ ] Interface contract agreed (`docs/interface-contract.md`)
 - [ ] Walking skeleton: one user, one org, one file, grant, access, revoke, denied

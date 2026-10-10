@@ -1,4 +1,4 @@
-# EPHEMERE: Interface Contract (DRAFT v0.3)
+# EPHEMERE: Interface Contract (DRAFT v0.4)
 
 Status: **proposal for the team to review and freeze in week 1.** Change it only via PR, and update the version number.
 
@@ -34,7 +34,7 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 
 ### 1.4 EncryptedAsset (stored as metadata; ciphertext is on IPFS)
 ```json
-{ "assetId": "uuid", "ownerId": "uuid", "cid": "Qm...",
+{ "assetId": "uuid", "ownerId": "uuid", "cid": "bafk... or bafy... (CIDv1)",
   "iv": "<b64, 12 bytes>", "aesAlg": "AES-GCM-256",
   "wrappedDek": { "capsule": "<b64>", "ciphertext": "<b64>" },
   "ownerPub": "<b64 umbral public key>", "createdAt": "ts" }
@@ -104,6 +104,6 @@ Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `GRANT_REVOKED`, `GRANT_EXPIRED`, `PROOF_
 ## 4. Open questions (decide this week)
 1. How does FastAPI verify Groth16 proofs: Node subprocess calling snarkjs, or a Python verifier? (A + C)
 2. Where are wrapped DEKs and metadata stored for the MVP: SQLite or Postgres? (C + D)
-3. Does the browser upload to IPFS directly, or through the backend? (B + D)
+3. Does the browser upload to IPFS directly, or through the backend? **Proposal: through the backend** (browser sends ciphertext, backend talks to Kubo), because Kubo's API gives full control of the node and must never be exposed. The browser always recomputes the CID of what it fetches (tested in `spikes/ipfs`). (B + D)
 4. Authentication for users and orgs: simple email+password with JWT for the MVP? (D + C)
 5. **Partly answered:** kfrags are already signed by the owner's signing key and the proxy verifies them. Still open: how the middleware proves to the proxy that the upload came from a logged-in owner session (for example an internal API key plus the user's session id). (B + C)
