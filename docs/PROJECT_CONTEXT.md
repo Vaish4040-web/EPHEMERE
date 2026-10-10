@@ -38,7 +38,7 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 | PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0**; interop was tested and works (see `spikes/pre`). License is GPL-3.0, mention it in the report. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
 | Storage | IPFS Kubo (local node) |
 | Backend | **Python 3.11 exactly**, FastAPI. umbral-pre has no ready-made installer for Python 3.12+, so use 3.11 for the whole team. |
-| Audit | Python module `audit/` |
+| Audit | Python module `audit/` (standard `hashlib` + `cryptography` for Ed25519 checkpoint signatures) |
 
 ## 5. Ownership
 | Member | Owns | Folder |
@@ -52,7 +52,7 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 
 ## 6. Rules for AI agents and humans
 **Crypto**
-- Use only: WebCrypto, umbral-pre, snarkjs/circomlib. **Never write custom crypto or invent primitives.**
+- Use only: WebCrypto, umbral-pre, snarkjs/circomlib, and in Python `hashlib` and the `cryptography` package. **Never write custom crypto or invent primitives.**
 - AES-GCM IV: fresh random 12 bytes per encryption, never reused, stored with the ciphertext.
 - Randomness only from `crypto.getRandomValues` / `crypto.randomBytes` / `secrets`. **Never `Math.random()`/`random`.**
 - Never hardcode, log, or commit keys, DEKs, plaintext, `.env` files or `keys/`.
@@ -72,7 +72,7 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 ## 7. Status
 - [x] ZK spike: age proof circuit + attack tests (`circuits/`)
 - [x] PRE spike: encrypt, delegate, re-encrypt, revoke, expiry, 2-of-3, re-key; JS ↔ Python interop passes (`spikes/pre`). **Still to do:** run the JS side inside a real browser (Next.js)
-- [ ] Merkle log spike: root, inclusion proof, tamper test
+- [x] Merkle log spike: hash chain, Merkle root, inclusion + consistency proofs, signed checkpoints, tamper attacks (`audit/`)
 - [ ] AES-GCM + IPFS spike: encrypt in browser, store, fetch by CID, decrypt
 - [ ] Interface contract agreed (`docs/interface-contract.md`)
 - [ ] Walking skeleton: one user, one org, one file, grant, access, revoke, denied

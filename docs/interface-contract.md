@@ -1,4 +1,4 @@
-# EPHEMERE: Interface Contract (DRAFT v0.2)
+# EPHEMERE: Interface Contract (DRAFT v0.3)
 
 Status: **proposal for the team to review and freeze in week 1.** Change it only via PR, and update the version number.
 
@@ -54,9 +54,16 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 { "seq": 42, "ts": "ts",
   "type": "REQUEST_CREATED|ZK_VERIFIED|ZK_FAILED|GRANT_APPROVED|ACCESS_ALLOWED|ACCESS_DENIED|REVOKED|EXPIRED|KEY_ROTATED|ERASED",
   "grantId": "uuid|null", "orgId": "uuid", "assetId": "uuid|null",
-  "decision": "allow|deny|n/a", "reason": "string (code, not free text with personal data)",
-  "prevHash": "<hex>", "leafHash": "<hex>" }
+  "decision": "allow|deny|n/a", "reason": "UPPER_CASE_CODE, max 40 chars, never free text",
+  "prevHash": "<64 hex>", "leafHash": "<64 hex>" }
 ```
+Rules (enforced and tested in `audit/`): `orgId`, `grantId`, `assetId` are lower-case UUIDv4 (or null for grant/asset). `prevHash` is the previous event's `leafHash` (64 zeros for the first). `leafHash` = SHA-256(0x00 || canonical JSON of the event without `leafHash`); canonical JSON = sorted keys, no spaces, ASCII.
+
+### 1.7 Checkpoint (signed by the operator, Ed25519)
+```json
+{ "size": 42, "root": "<64 hex>", "ts": "ts", "sig": "<b64>" }
+```
+Users, auditors or a public page should **store checkpoints themselves**. Tamper-evidence only works if someone besides the operator holds an old checkpoint.
 
 ## 2. Endpoints (REST, JSON)
 
@@ -84,8 +91,9 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 | `POST /proxy/reencrypt` | `{grantId, capsule}` → `{cfrags}` or `403` if revoked/expired |
 | `DELETE /proxy/policies/{grantId}` | Delete kfrags (revocation) |
 | `POST /audit/events` | Append event → `{seq, leafHash}` |
-| `GET /audit/root` | Current Merkle root + size |
-| `GET /audit/proof/{seq}` | Inclusion proof for one event |
+| `GET /audit/checkpoint` | Latest **signed** checkpoint |
+| `GET /audit/proof/{seq}` | Inclusion proof for one event (size must match a trusted checkpoint) |
+| `GET /audit/consistency?oldSize=N` | Proof that the log extends an older checkpoint without rewriting it |
 
 ## 3. Error format
 ```json
