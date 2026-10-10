@@ -37,8 +37,11 @@ Browser proving time will differ. Measure it yourselves for the report.
 - **The issuer key is public.** The verifier learns which issuer signed the credential, and nothing else about the user.
 - **Keep it unlinkable.** Proofs reveal only the four public signals. Never expose `dob`, `salt` or the signature as public inputs, and use a fresh random `salt` per credential.
 
+## Use the proof in the browser (web app)
+After `./build.sh`, run `npm run zk:prepare` here. It copies the circuit and keys into `../web/public/zk/` and creates two test credentials (an adult and a 15-year-old) signed by a simulated issuer. The web page `/lab` then proves and verifies in the browser. (The web zip already contains ready-made files, so you only need this to rebuild them.)
+
 ## Next steps
-1. Run the proof in the **browser** (`snarkjs.groth16.fullProve` with the `.wasm` and `.zkey` served as static files) and record the time.
+1. ~~Run the proof in the browser~~ Done: see `web/` page `/lab` (about 2.3 s to prove on one CPU thread in my test). Measure on your own laptops and record it for the report.
 2. Decide with Member C how FastAPI verifies proofs: call `snarkjs` from a Node subprocess, or use a Python Groth16 verifier.
 3. Define the proof/public-signal JSON format in the interface contract.
 4. Add a second circuit later (for example residency) only if time remains.

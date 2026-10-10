@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "./build.sh",
-    "test": "node test_age_proof.mjs"
+    "test": "node test_age_proof.mjs",
+    "zk:prepare": "node export_for_web.mjs"
   },
   "dependencies": {
     "circomlib": "^2.0.5",

@@ -35,10 +35,16 @@ You should see 14 lines starting with `PASS` and then `ALL TESTS PASSED`.
 - Re-encrypt about 0.5 ms, verify and decrypt about 2 ms (tiny file, one kfrag). Measure again yourself for the report.
 - Versions: umbral-pre **0.10.0** on both sides (npm `@nucypher/umbral-pre`, PyPI `umbral-pre`).
 
+## Test with the browser (optional, 3 steps)
+The web app (`web/`, page `/lab`) can make a bundle in the browser for this Python code to open:
+1. `python make_bob.py` prints the access service's public key (and saves its secret in `bob_secret.json`, never commit it).
+2. Paste the key into the page, click **Create share bundle**, and save the text as `bundle.json` in this folder.
+3. `python verify_bundle.py bundle.json` should print `PASS`.
+
 ## Important lessons the tests show
 - **The company must never be handed cfrags.** Test 7 shows that if someone keeps cfrags from before a revoke, they can still open the OLD capsule. That is why the access service (not the company) does the opening.
 - **Strong revoke = re-key.** Test 8 shows that after the owner re-encrypts the file with a new key, the old cfrags are useless.
-- **Not tested yet:** this ran in Node, not inside a real web browser. The browser version of the same library is shipped in the package (`pkg-bundler`). Testing it inside Next.js is the next step.
+- The browser version of the same library was tested inside Next.js: see `web/`. A bundle made in a real browser is accepted by this Python code.
 
 ## Notes for the report
 - umbral-pre is licensed **GPL-3.0**. Fine for an academic project, but mention it.
