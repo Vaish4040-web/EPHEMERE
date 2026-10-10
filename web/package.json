@@ -1,0 +1,22 @@
+{
+  "name": "ephemere-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prepare:web": "node scripts/copy-vendor.mjs",
+    "predev": "node scripts/copy-vendor.mjs",
+    "prebuild": "node scripts/copy-vendor.mjs",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@nucypher/umbral-pre": "0.10.0",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "snarkjs": "0.7.6"
+  }
+}

@@ -63,8 +63,9 @@ class Proxy:
 class AccessService:
     """The delegate. Holds its own Umbral secret key."""
 
-    def __init__(self):
-        self._sk = SecretKey.random()
+    def __init__(self, secret_key=None):
+        # In tests a key can be passed in; otherwise a new random one is made.
+        self._sk = secret_key if secret_key is not None else SecretKey.random()
         self.public_key = self._sk.public_key()
 
     def open_file(self, *, asset_id, capsule_b, cfrags_b, wrapped_dek,

@@ -29,11 +29,12 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 | D6 | The proxy refuses to produce a cfrag if the grant is revoked or expired, and revocation deletes the kfrags and blocklists them so they cannot be re-registered. Optional "strong revoke": owner re-keys the file (new DEK, new CID). |
 | D7 | ZK: Circom 2.1.9 + SnarkJS Groth16. Verifier checks the proof **and** that public signals equal its own issuer key, cutoff day and nonce. Dev-only trusted setup, simulated issuer. |
 | D8 | Audit: hash-chained events, Merkle root checkpoints, inclusion proofs. Events contain IDs and decisions only. |
+| D9 | Browser: Umbral is imported dynamically in the browser only (never on the server). Proof files (`.wasm`, `.zkey`) are served from `web/public/zk/` and are never committed. |
 
 ## 4. Stack and pinned versions
 | Layer | Tech |
 |---|---|
-| Frontend | Next.js (Node 20+ LTS), WebCrypto for AES-GCM |
+| Frontend | Next.js 16.3.8 (JavaScript, App Router), **run with webpack** (`next dev --webpack`, already set in `web/package.json`) because the Umbral WebAssembly package needs it. WebCrypto for AES-GCM. snarkjs is loaded as a plain script from `public/vendor`. |
 | ZK | Circom 2.1.9, snarkjs 0.7.6, circomlib 2.0.5, circomlibjs 0.1.7 |
 | PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0**; interop was tested and works (see `spikes/pre`). License is GPL-3.0, mention it in the report. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
 | Storage | IPFS Kubo 0.43.1 (local node, `ipfs daemon --offline` for the demo). The npm package `kubo` provides the binary. |
@@ -71,8 +72,9 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 
 ## 7. Status
 - [x] ZK spike: age proof circuit + attack tests (`circuits/`)
-- [x] PRE spike: encrypt, delegate, re-encrypt, revoke, expiry, 2-of-3, re-key; JS ↔ Python interop passes (`spikes/pre`). **Still to do:** run the JS side inside a real browser (Next.js)
+- [x] PRE spike: encrypt, delegate, re-encrypt, revoke, expiry, 2-of-3, re-key; JS ↔ Python interop passes (`spikes/pre`)
 - [x] Merkle log spike: hash chain, Merkle root, inclusion + consistency proofs, signed checkpoints, tamper attacks (`audit/`)
-- [x] AES-GCM + IPFS spike: encrypt, store by CID, fetch, verify CID, decrypt, unpin + GC (`spikes/ipfs`, tested in Node with real Kubo 0.43.1). **Still to do:** run in a real browser page
+- [x] AES-GCM + IPFS spike: encrypt, store by CID, fetch, verify CID, decrypt, unpin + GC (`spikes/ipfs`, tested in Node with real Kubo 0.43.1). The browser will talk to IPFS through the backend, not directly.
+- [x] Browser test (`web/`, page `/lab`): 19 checks pass in a real browser (headless Chrome 153, both `npm run dev` and a production build): AES-GCM, Umbral WebAssembly, ZK proof (about 2.3 s to prove, 27 ms to verify, on one CPU thread). A bundle made in the browser is accepted by the Python proxy + access service. **Still to do:** try Firefox and Safari, measure on your own laptops, build the real vault UI.
 - [ ] Interface contract agreed (`docs/interface-contract.md`)
 - [ ] Walking skeleton: one user, one org, one file, grant, access, revoke, denied

@@ -1,0 +1,6 @@
+node_modules/
+.next/
+public/zk/
+public/vendor/
+*.log
+bob_secret.json
