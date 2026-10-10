@@ -1,0 +1,9 @@
+{
+  "name": "ephemere-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provides the IPFS program (Kubo) for demo/run_all.py",
+  "dependencies": {
+    "kubo": "0.43.1"
+  }
+}
