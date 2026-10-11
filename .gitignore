@@ -1,6 +1,8 @@
 # secrets and local key material (never commit)
 .env
 .env.*
+!.env.example
+.data/
 *.pem
 *.key
 keys/

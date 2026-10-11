@@ -38,7 +38,7 @@ A zero-trust middleware between **users (data principals)** and **organizations 
 | ZK | Circom 2.1.9, snarkjs 0.7.6, circomlib 2.0.5, circomlibjs 0.1.7 |
 | PRE | **umbral-pre 0.10.0**: npm `@nucypher/umbral-pre` (browser/WASM) and PyPI `umbral-pre` (FastAPI). Pin **both to 0.10.0**; interop was tested and works (see `spikes/pre`). License is GPL-3.0, mention it in the report. pyUmbral (`umbral` on PyPI) is inactive: do not use. |
 | Storage | IPFS Kubo 0.43.1 (local node, `ipfs daemon --offline` for the demo). The npm package `kubo` provides the binary. |
-| Backend | **Python 3.11 exactly**, FastAPI. umbral-pre has no ready-made installer for Python 3.12+, so use 3.11 for the whole team. |
+| Backend | **Python 3.11 exactly**, FastAPI 0.142.2 + uvicorn 0.54.0, tests with pytest. umbral-pre has no ready-made installer for Python 3.12+, so use 3.11 for the whole team. Three small apps: gateway (port 8000), proxy (8001), access service (8002). Started together with `python demo/run_all.py`. |
 | Audit | Python module `audit/` (standard `hashlib` + `cryptography` for Ed25519 checkpoint signatures) |
 
 ## 5. Ownership
@@ -77,4 +77,4 @@ One branch per task (`a/zk-browser`, `b/pre-flow`, ...). Pull requests into `mai
 - [x] AES-GCM + IPFS spike: encrypt, store by CID, fetch, verify CID, decrypt, unpin + GC (`spikes/ipfs`, tested in Node with real Kubo 0.43.1). The browser will talk to IPFS through the backend, not directly.
 - [x] Browser test (`web/`, page `/lab`): 19 checks pass in a real browser (headless Chrome 153, both `npm run dev` and a production build): AES-GCM, Umbral WebAssembly, ZK proof (about 2.3 s to prove, 27 ms to verify, on one CPU thread). A bundle made in the browser is accepted by the Python proxy + access service. **Still to do:** try Firefox and Safari, measure on your own laptops, build the real vault UI.
 - [ ] Interface contract agreed (`docs/interface-contract.md`)
-- [ ] Walking skeleton: one user, one org, one file, grant, access, revoke, denied
+- [ ] Walking skeleton: one user, one org, one file, grant, access, revoke, denied. **Plan:** `docs/WALKING_SKELETON.md`. **M1 built:** one command starts IPFS, proxy, access service, gateway and the web app; vault and company page shells show live system status; 15 backend tests and 20 integration checks pass. Next: M2 (upload a file).
