@@ -1,4 +1,4 @@
-# EPHEMERE: Interface Contract (DRAFT v0.4)
+# EPHEMERE: Interface Contract (DRAFT v0.5)
 
 Status: **proposal for the team to review and freeze in week 1.** Change it only via PR, and update the version number.
 
@@ -36,6 +36,7 @@ Order of `publicSignals` is fixed. Verifier rejects unless the signals equal the
 ```json
 { "assetId": "uuid", "ownerId": "uuid", "cid": "bafk... or bafy... (CIDv1)",
   "iv": "<b64, 12 bytes>", "aesAlg": "AES-GCM-256",
+  "label": "profile.json (plain text, no personal details)", "sizeBytes": 171,
   "wrappedDek": { "capsule": "<b64>", "ciphertext": "<b64>" },
   "ownerPub": "<b64 umbral public key>", "createdAt": "ts" }
 ```
@@ -65,7 +66,21 @@ Rules (enforced and tested in `audit/`): `orgId`, `grantId`, `assetId` are lower
 ```
 Users, auditors or a public page should **store checkpoints themselves**. Tamper-evidence only works if someone besides the operator holds an old checkpoint.
 
-## 2. Endpoints (REST, JSON)
+## 2a. Built so far (M1 and M2), in real use
+**All browser-facing paths live under `/api`** (the web app passes `/api/...` on to the gateway). Paths listed in section 2 without that prefix will get it when they are built.
+
+| Method + path | Who | What |
+|---|---|---|
+| `GET /api/status` | anyone | Honest status of every part (no secrets) |
+| `POST /api/demo/login` | anyone | `{account: "asha"|"ravi"|"quickdeliver"}` -> `{token, account:{id, role, name}}`. **Demo only: no passwords.** Switch off with `DEMO_LOGIN=off`. |
+| `POST /api/assets` | user | Upload an encrypted file: `{assetId, label, iv, capsule, wrappedDek, ownerPk, verifyingPk, ciphertext}` (all base64 except ids and label) -> `201 {assetId, cid, sizeBytes}` |
+| `GET /api/assets` | user | The caller's own files: `{assets:[{assetId, label, cid, sizeBytes, createdAt}]}` |
+| `GET /api/assets/{id}` | owner | Metadata plus the pieces needed to open the file (`iv, capsule, wrappedDek, ownerPk, verifyingPk`) |
+| `GET /api/assets/{id}/ciphertext` | owner | The encrypted bytes (`application/octet-stream`), fetched from IPFS |
+
+Rules: send `Authorization: Bearer <token>`. Files are at most **5 MB**. The `label` is stored **unencrypted** (letters, digits, space and `._()-`, 1 to 40 characters), so it must never hold personal details. `assetId` is a lower-case UUIDv4. `iv` is exactly 12 bytes, public keys exactly 33 bytes. Someone else's file looks like it does not exist (`404`), a company asking for user-only endpoints gets `403`. If IPFS is down, nothing is recorded and the answer is `502 STORAGE_UNAVAILABLE`. **The browser recomputes the CID of every file it fetches and refuses mismatches.**
+
+## 2. Endpoints (REST, JSON), full plan
 
 **Org-facing (Company portal → middleware)**
 | Method + path | Purpose |
@@ -99,7 +114,7 @@ Users, auditors or a public page should **store checkpoints themselves**. Tamper
 ```json
 { "error": { "code": "GRANT_REVOKED", "message": "human readable" } }
 ```
-Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `GRANT_REVOKED`, `GRANT_EXPIRED`, `PROOF_INVALID`, `SIGNALS_MISMATCH`, `NONCE_REUSED`, `NOT_FOUND`.
+Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `GRANT_REVOKED`, `GRANT_EXPIRED`, `PROOF_INVALID`, `SIGNALS_MISMATCH`, `NONCE_REUSED`, `NOT_FOUND`, `BAD_REQUEST`, `CONFLICT`, `FILE_TOO_LARGE`, `STORAGE_UNAVAILABLE`.
 
 ## 4. Open questions (decide this week)
 1. How does FastAPI verify Groth16 proofs: Node subprocess calling snarkjs, or a Python verifier? (A + C)

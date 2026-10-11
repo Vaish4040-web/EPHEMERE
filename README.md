@@ -17,7 +17,7 @@ python demo/run_all.py
 ```
 
 Then open **http://localhost:3000/vault** and **http://localhost:3000/company**. Press Ctrl+C to stop everything.
-In a second terminal: `python demo/check_m1.py` checks that every part works, and `python -m pytest -q` runs the backend tests.
+In a second terminal: `python demo/check_m1.py` and `python demo/check_m2.py` check that every part works, and `python -m pytest -q` runs the backend tests. Then try the vault: open the Vault page and click **Upload a sample profile**.
 
 | Folder | Owner | Contents |
 |---|---|---|

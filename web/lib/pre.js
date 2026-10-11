@@ -6,12 +6,14 @@ export function loadUmbral() {
   return umbralPromise;
 }
 
-// A new owner: encryption key pair + a separate signing key used only to sign kfrags.
-export function newOwner(U) {
-  const sk = U.SecretKey.random();
-  const signerSk = U.SecretKey.random();
+// An owner = an encryption key pair + a separate signing key used only to sign kfrags.
+export function ownerFromKeys(U, sk, signerSk) {
   const signer = new U.Signer(signerSk);
   return { sk, pk: sk.publicKey(), signer, verifyingPk: signer.verifyingKey() };
+}
+
+export function newOwner(U) {
+  return ownerFromKeys(U, U.SecretKey.random(), U.SecretKey.random());
 }
 
 // Hide the file key (DEK) so only the owner can open it, for now.

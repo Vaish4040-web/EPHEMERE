@@ -7,7 +7,10 @@ from fastapi import FastAPI
 
 from api.common.config import Settings
 from api.common.errors import install_error_handlers
+from api.gateway.assets import make_assets_router
+from api.gateway.auth import make_auth
 from api.gateway.db import init_db, table_names
+from api.gateway.ipfs import IpfsClient
 
 
 def create_app(settings: Settings | None = None, client: httpx.AsyncClient | None = None) -> FastAPI:
@@ -26,6 +29,10 @@ def create_app(settings: Settings | None = None, client: httpx.AsyncClient | Non
 
     app = FastAPI(title="EPHEMERE gateway", lifespan=lifespan)
     install_error_handlers(app)
+
+    auth = make_auth(settings.demo_login)
+    app.include_router(auth.router)
+    app.include_router(make_assets_router(db_path, IpfsClient(http, settings.ipfs_url), auth.require_user))
 
     async def check_internal(name: str, url: str) -> dict:
         try:
