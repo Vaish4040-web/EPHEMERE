@@ -8,7 +8,7 @@
 |---|---|
 | M0 Decisions and contract v1.0 | [ ] Team meeting still to do. M1 was built using the suggestions in section 5; tell us if the team chooses differently. |
 | M1 Services run | [x] **Built and tested.** One command (`python demo/run_all.py`) starts IPFS, proxy, access service, gateway and the web app. The vault and company pages show live status. 15 backend tests, 20 integration checks, and a real-browser check pass. |
-| M2 Upload a file | [ ] |
+| M2 Upload a file | [x] **Built and tested.** Asha's browser makes keys, encrypts a file and uploads it. The gateway stores the scrambled bytes in IPFS. She can open it again and the browser checks the CID. 46 backend tests, 14 integration checks and 15 real-browser checks pass, including a lying server being caught. Demo sign-in has no passwords. |
 | M3 Request, approve, access | [ ] |
 | M4 Revoke, expiry, audit events | [ ] |
 | M5 The age proof | [ ] |

@@ -20,3 +20,15 @@ button:disabled { opacity:.55; cursor:default; }
 .summary { font-size: 18px; font-weight: 700; margin: 14px 0; }
 textarea, input { width:100%; background: var(--bg); color: var(--text); border:1px solid var(--line); border-radius:8px; padding:10px; font: 13px ui-monospace, Consolas, monospace; }
 textarea { min-height: 130px; }
+
+/* ---- files panel ---- */
+.btnrow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0 4px; }
+button.secondary { background: transparent; color: var(--accent); border:1px solid var(--line); }
+.filerow { border-top:1px solid var(--line); padding:12px 0; }
+.filerow:first-of-type { border-top:0; }
+.filehead { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size:12px; color: var(--muted); word-break: break-all; }
+pre.block { background: var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; font: 12px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-all; margin:8px 0 0; }
+.ok { color: var(--ok); font-weight:600; font-size:13px; }
+.err { color: var(--bad); font-size:14px; margin:8px 0 0; }
+input[type=text] { width:auto; min-width:220px; }

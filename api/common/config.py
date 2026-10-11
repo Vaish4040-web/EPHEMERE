@@ -29,6 +29,7 @@ class Settings:
     access_port: int = 8002
     ipfs_api_port: int = 5101
     web_port: int = 3000
+    demo_login: bool = True      # demo accounts need no password: switch off with DEMO_LOGIN=off
 
     @property
     def proxy_url(self) -> str:
@@ -62,4 +63,5 @@ class Settings:
             access_port=int(environ.get("ACCESS_PORT", 8002)),
             ipfs_api_port=int(environ.get("IPFS_API_PORT", 5101)),
             web_port=int(environ.get("WEB_PORT", 3000)),
+            demo_login=environ.get("DEMO_LOGIN", "on").strip().lower() not in ("off", "0", "false", "no"),
         )

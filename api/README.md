@@ -21,13 +21,23 @@ At the top of the repo, with your virtual environment active:
 python -m pytest -q
 ```
 
-You should see **15 passed**. The tests were written before the code. They check, among other things, that the doors refuse missing or wrong secrets, that the access key is created once and reused, that the key is never shown in any answer, and that the gateway reports a broken service honestly.
+You should see **46 passed**. The tests were written before the code. They check, among other things, that the doors refuse missing or wrong secrets, that the access key is created once and reused, that the key is never shown in any answer, and that the gateway reports a broken service honestly.
+
+## What the gateway can do now (M2)
+| Endpoint | What |
+|---|---|
+| `POST /api/demo/login` | Sign in as a demo account (asha, ravi, quickdeliver). **No passwords: demo only, not real security.** Switch off with `DEMO_LOGIN=off`. |
+| `POST /api/assets` | Upload an encrypted file (the browser encrypts it first). Stored in IPFS; the database keeps metadata only. |
+| `GET /api/assets`, `GET /api/assets/{id}`, `.../ciphertext` | List, describe and download your own files. Someone else's file looks like it does not exist. |
+
+Full details are in `docs/interface-contract.md` (section 2a). Check it live with `python demo/check_m2.py`.
 
 ## Folders
 | Folder | Contents |
 |---|---|
 | `common/` | Settings, the one error format, the internal-door check |
-| `gateway/`, `proxy/`, `access/` | One `main.py` each (`create_app()` builds the server) |
+| `gateway/` | `main.py` (builds the server), `auth.py` (demo sign-in), `assets.py` (files), `ipfs.py` (talks to IPFS), `db.py` (SQLite) |
+| `proxy/`, `access/` | One `main.py` each (`create_app()` builds the server) |
 | `tests/` | The tests |
 
 ## Rules (from `docs/PROJECT_CONTEXT.md`)
