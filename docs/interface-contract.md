@@ -1,4 +1,4 @@
-# EPHEMERE: Interface Contract (DRAFT v0.5)
+# EPHEMERE: Interface Contract (DRAFT v0.6)
 
 Status: **proposal for the team to review and freeze in week 1.** Change it only via PR, and update the version number.
 
@@ -80,6 +80,24 @@ Users, auditors or a public page should **store checkpoints themselves**. Tamper
 
 Rules: send `Authorization: Bearer <token>`. Files are at most **5 MB**. The `label` is stored **unencrypted** (letters, digits, space and `._()-`, 1 to 40 characters), so it must never hold personal details. `assetId` is a lower-case UUIDv4. `iv` is exactly 12 bytes, public keys exactly 33 bytes. Someone else's file looks like it does not exist (`404`), a company asking for user-only endpoints gets `403`. If IPFS is down, nothing is recorded and the answer is `502 STORAGE_UNAVAILABLE`. **The browser recomputes the CID of every file it fetches and refuses mismatches.**
 
+### M3: requests, approval and access (built)
+| Method + path | Who | What |
+|---|---|---|
+| `GET /api/policy` | anyone | The rules: purposes with the fields each may ask for, and the min/max duration (30 s to 24 h) |
+| `GET /api/access-key` | user | The access service's public key. The person's browser makes kfrags **for this key**. |
+| `POST /api/org/requests` | company | `{subject, field, purpose, durationSec}` -> `201 {requestId, status:"pending"}` |
+| `GET /api/org/requests` | company | The company's own requests with status (`pending`, `approved`, `denied`, `expired`, `revoked`). A company never sees file or grant IDs. |
+| `POST /api/org/requests/{id}/access` | company | Collect the data -> `{requestId, field, value}`. **Only that one value, never the file.** |
+| `GET /api/user/requests` | user | Requests addressed to the caller |
+| `POST /api/user/requests/{id}/approve` | user | `{assetId, kfrags:[b64]}` -> `{status:"approved", grantId, expiresAt}`. The person picks which of their files to share from. |
+| `POST /api/user/requests/{id}/deny` | user | -> `{status:"denied"}` |
+
+**Rules (the policy engine):** a request names a **purpose** (`DELIVERY`, `KYC`, `CONSULTATION`) and **one field** (`address`, `name`, `phone`, `blood_group`), and the purpose must allow that field (`PURPOSE_NOT_ALLOWED` otherwise). A request can be decided **once**. Someone else's request looks like it does not exist (`404`). The gateway checks the grant and the clock, and **the proxy checks revoke and expiry again on its own**.
+
+**Internal doors** (shared secret in `X-Internal-Secret`, never reachable from a browser): proxy `POST /internal/policies`, `POST /internal/reencrypt`, `DELETE /internal/policies/{grantId}`; access service `GET /internal/public-key`, `POST /internal/open`. The proxy keeps its pieces in `.data/proxy.db`, **including a blocklist of revoked kfrags**, so a restart can never bring back a revoked permission.
+
+New error codes: `PURPOSE_NOT_ALLOWED`, `BAD_KFRAG`, `KFRAG_REVOKED`, `REQUEST_NOT_APPROVED`, `GRANT_UNAVAILABLE` (the proxy lost it: approve again), `SERVICE_UNAVAILABLE`, `ACCESS_FAILED`, `FIELD_NOT_FOUND`.
+
 ## 2. Endpoints (REST, JSON), full plan
 
 **Org-facing (Company portal → middleware)**
@@ -121,4 +139,4 @@ Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `GRANT_REVOKED`, `GRANT_EXPIRED`, `PROOF_
 2. Where are wrapped DEKs and metadata stored for the MVP: SQLite or Postgres? (C + D)
 3. Does the browser upload to IPFS directly, or through the backend? **Proposal: through the backend** (browser sends ciphertext, backend talks to Kubo), because Kubo's API gives full control of the node and must never be exposed. The browser always recomputes the CID of what it fetches (tested in `spikes/ipfs`). (B + D)
 4. Authentication for users and orgs: simple email+password with JWT for the MVP? (D + C)
-5. **Partly answered:** kfrags are already signed by the owner's signing key and the proxy verifies them. Still open: how the middleware proves to the proxy that the upload came from a logged-in owner session (for example an internal API key plus the user's session id). (B + C)
+5. **Answered in M3:** kfrags are signed by the owner's signing key, and the proxy verifies them against the owner's key, the file's key and the access service's key. The browser never talks to the proxy: the gateway checks the person's session first, then forwards the pieces with the internal secret. Still open for the report: the gateway is trusted to pass them on honestly (it is the operator).
