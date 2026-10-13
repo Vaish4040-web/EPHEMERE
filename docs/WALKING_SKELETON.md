@@ -9,7 +9,7 @@
 | M0 Decisions and contract v1.0 | [ ] Team meeting still to do. M1 was built using the suggestions in section 5; tell us if the team chooses differently. |
 | M1 Services run | [x] **Built and tested.** One command (`python demo/run_all.py`) starts IPFS, proxy, access service, gateway and the web app. The vault and company pages show live status. 15 backend tests, 20 integration checks, and a real-browser check pass. |
 | M2 Upload a file | [x] **Built and tested.** Asha's browser makes keys, encrypts a file and uploads it. The gateway stores the scrambled bytes in IPFS. She can open it again and the browser checks the CID. 46 backend tests, 14 integration checks and 15 real-browser checks pass, including a lying server being caught. Demo sign-in has no passwords. |
-| M3 Request, approve, access | [ ] |
+| M3 Request, approve, access | [x] **Built and tested.** QuickDeliver asks for one field for a purpose; Asha approves in her browser (it makes the permission pieces); the company receives only that field. A purpose rule limits what can be asked. Permissions end by time, and the proxy keeps them across restarts. 128 backend tests, 20 integration checks (including a real 30-second expiry), and 13 real-browser checks pass. Plaintext is found nowhere in stored data. |
 | M4 Revoke, expiry, audit events | [ ] |
 | M5 The age proof | [ ] |
 | M6 Prove the history | [ ] |

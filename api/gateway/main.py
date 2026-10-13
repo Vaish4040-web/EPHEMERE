@@ -1,5 +1,6 @@
 """GATEWAY: the only service the browser pages talk to.
-M1: health + an honest status report. Later: requests, approvals, access, revoke, audit."""
+M1: status. M2: files. M3: requests, approvals and access. Later: revoke and the audit log."""
+import time
 from contextlib import asynccontextmanager
 
 import httpx
@@ -10,10 +11,12 @@ from api.common.errors import install_error_handlers
 from api.gateway.assets import make_assets_router
 from api.gateway.auth import make_auth
 from api.gateway.db import init_db, table_names
+from api.gateway.internal import InternalClient
 from api.gateway.ipfs import IpfsClient
+from api.gateway.requests import make_requests_router
 
 
-def create_app(settings: Settings | None = None, client: httpx.AsyncClient | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, client: httpx.AsyncClient | None = None, clock=time.time) -> FastAPI:
     settings = settings or Settings.from_env()
     db_path = settings.data_dir / "ephemere.db"
     init_db(db_path)
@@ -32,7 +35,9 @@ def create_app(settings: Settings | None = None, client: httpx.AsyncClient | Non
 
     auth = make_auth(settings.demo_login)
     app.include_router(auth.router)
-    app.include_router(make_assets_router(db_path, IpfsClient(http, settings.ipfs_url), auth.require_user))
+    ipfs = IpfsClient(http, settings.ipfs_url)
+    app.include_router(make_assets_router(db_path, ipfs, auth.require_user))
+    app.include_router(make_requests_router(db_path, ipfs, InternalClient(http, settings), auth, clock))
 
     async def check_internal(name: str, url: str) -> dict:
         try:

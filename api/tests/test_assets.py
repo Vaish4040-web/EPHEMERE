@@ -16,38 +16,10 @@ from fastapi.testclient import TestClient
 from api.common.config import Settings
 from api.gateway.db import init_db
 from api.gateway.main import create_app as create_gateway
+from api.tests.helpers import FakeIpfs
 
 SECRET = "test-secret-0123456789abcdef"
 b64 = lambda b: base64.b64encode(b).decode()
-
-
-class FakeIpfs:
-    """A tiny pretend IPFS node: remembers bytes under a fake content address."""
-
-    def __init__(self):
-        self.blocks = {}
-        self.down = False
-        self.garbage = False
-
-    def handler(self, request: httpx.Request):
-        if self.down:
-            raise httpx.ConnectError("refused")
-        if request.url.path == "/api/v0/add":
-            boundary = request.headers["content-type"].split("boundary=")[1].encode()
-            part = request.content.split(b"--" + boundary)[1]
-            data = part.split(b"\r\n\r\n", 1)[1].rsplit(b"\r\n", 1)[0]
-            digest = base64.b32encode(hashlib.sha256(data).digest()).decode().lower().rstrip("=")
-            cid = "bafkrei" + digest[:52]
-            self.blocks[cid] = data
-            if self.garbage:
-                return httpx.Response(200, text="not json at all")
-            return httpx.Response(200, text=f'{{"Name":"ciphertext.bin","Hash":"{cid}","Size":"{len(data)}"}}\n')
-        if request.url.path == "/api/v0/cat":
-            cid = request.url.params["arg"]
-            if cid in self.blocks:
-                return httpx.Response(200, content=self.blocks[cid])
-            return httpx.Response(500, json={"Message": "block was not found locally"})
-        return httpx.Response(404)
 
 
 @pytest.fixture

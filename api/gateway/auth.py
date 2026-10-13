@@ -14,7 +14,9 @@ ACCOUNTS = {
     "asha": {"id": "3f2b8c1e-5a47-4d1c-9b6e-7a1d2c3e4f50", "role": "user", "name": "Asha"},
     "ravi": {"id": "9c4e1d7a-2b63-4f08-8a15-6d3e7b9c0a21", "role": "user", "name": "Ravi"},
     "quickdeliver": {"id": "b7a6e5d4-c3b2-4a19-8f0e-1d2c3b4a5968", "role": "org", "name": "QuickDeliver"},
+    "freshmart": {"id": "d1e2f3a4-b5c6-4d7e-8f90-a1b2c3d4e5f6", "role": "org", "name": "FreshMart"},
 }
+ACCOUNTS_BY_ID = {a["id"]: a for a in ACCOUNTS.values()}
 
 
 class LoginBody(BaseModel):

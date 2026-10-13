@@ -1,9 +1,11 @@
 // DEMO sign-in: no passwords (not real security). The token lives in sessionStorage, so it is forgotten when the tab closes.
-const KEY = "ephemere.session.v1";
+const KEY = "ephemere.sessions.v2";   // one token per demo account
 
 export class ApiProblem extends Error {
   constructor(status, code, message) { super(message); this.status = status; this.code = code; }
 }
+
+const readAll = () => { try { return JSON.parse(sessionStorage.getItem(KEY) ?? "{}"); } catch { return {}; } };
 
 async function signIn(account) {
   const r = await fetch("/api/demo/login", {
@@ -11,16 +13,12 @@ async function signIn(account) {
   });
   if (!r.ok) throw new ApiProblem(r.status, "SIGN_IN_FAILED", "Could not sign in. Is everything running? (python demo/run_all.py)");
   const body = await r.json();
-  sessionStorage.setItem(KEY, JSON.stringify({ account, token: body.token }));
+  sessionStorage.setItem(KEY, JSON.stringify({ ...readAll(), [account]: body.token }));
   return body.token;
 }
 
 async function token(account) {
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(KEY) ?? "null");
-    if (saved?.account === account && saved.token) return saved.token;
-  } catch { /* fall through and sign in again */ }
-  return signIn(account);
+  return readAll()[account] || signIn(account);
 }
 
 // Calls the gateway as the given demo account. Signs in again once if the token was forgotten (for example after a restart).
